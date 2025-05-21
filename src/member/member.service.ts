@@ -23,4 +23,8 @@ export class MemberService {
   remove(id: number) {
     return `This action removes a #${id} member`;
   }
+/*
+  async findOneByName(name: string): Promise<MemberEntity> {
+    return await undefined;
+  }*/
 }

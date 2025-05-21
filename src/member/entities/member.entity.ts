@@ -1,1 +1,1 @@
-export class Member {}
+export class MemberEntity {}
