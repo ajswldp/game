@@ -7,6 +7,7 @@ import { CurrentUser } from '../auth/decorator/user.decorator';
 import { User } from '../auth/user/user';
 import { LoginDto } from '../auth/user/login.dto';
 import { RolesGuard } from '../auth/role.guard';
+import { DistanceInfo } from '../device/dto/info.dto';
 
 @Controller('host')
 export class HostController {
@@ -14,9 +15,12 @@ export class HostController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('host')
-  @Get()
-  test(@CurrentUser() user: User) {
-    return this.hostService.test(user);
+  @Post('/distance')
+  async distance(
+    @CurrentUser() user: User,
+    @Body() distanceInfo: DistanceInfo,
+  ) {
+    await this.hostService.distance(user, distanceInfo);
   }
   @Post('/signup')
   async signup(@Body() signupHostDto: SignupHostDto) {

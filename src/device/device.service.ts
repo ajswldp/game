@@ -1,26 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
+import { InfoDto } from './dto/info.dto';
+import { HostService } from '../host/host.service';
+import { MemberService } from '../member/member.service';
 
 @Injectable()
 export class DeviceService {
-  create(createDeviceDto: CreateDeviceDto) {
-    return 'This action adds a new device';
-  }
-
-  findAll() {
-    return `This action returns all device`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} device`;
-  }
-
-  update(id: number, updateDeviceDto: UpdateDeviceDto) {
-    return `This action updates a #${id} device`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} device`;
+  constructor(
+    private readonly hostService: HostService,
+    private readonly membersService: MemberService,
+  ) {}
+  async info(infoDto: InfoDto) {
+    const host = await this.hostService.info(infoDto);
+    return await this.membersService.info(host, infoDto.members);
   }
 }

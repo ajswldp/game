@@ -12,6 +12,9 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../auth/user/user';
 import { LoginDto } from '../auth/user/login.dto';
 import { AuthService } from '../auth/auth.service';
+import { DistanceInfo, InfoDto } from '../device/dto/info.dto';
+import { MemberService } from '../member/member.service';
+import { NameDto } from './dto/name.dto';
 
 @Injectable()
 export class HostService {
@@ -19,6 +22,7 @@ export class HostService {
     @InjectRepository(HostEntity)
     private readonly hostRepo: Repository<HostEntity>,
     private readonly tokenService: AuthService,
+    private readonly memberService: MemberService,
   ) {}
 
   test(user: User) {
@@ -63,5 +67,41 @@ export class HostService {
 
   async findOneByName(name: string) {
     return await this.hostRepo.findOneBy({ id: name });
+  }
+
+  async distance(user: User, distanceInfo: DistanceInfo) {
+    const host = user.entity as HostEntity;
+    host.safe = distanceInfo.safe;
+    host.warning = distanceInfo.warning;
+    host.danger = distanceInfo.danger;
+    await this.hostRepo.save(host);
+  }
+
+  async name(user: User, nameInfo: NameDto) {
+    const host = user.entity as HostEntity;
+    const member = await this.memberService.findOneByNameAndHost(
+      nameInfo.beforeName,
+      host,
+    );
+    if (!member) {
+      throw new BadRequestException('찾을 수 없는 이름 입니다');
+    } else if (
+      await this.memberService.findOneByNameAndHost(nameInfo.afterName, host)
+    ) {
+      throw new BadRequestException('이미 있는 이름 입니다');
+    } else {
+      member.name = nameInfo.afterName;
+      await this.memberService.save(member);
+    }
+  }
+
+  async info(infoDto: InfoDto) {
+    const host =
+      (await this.hostRepo.findOneBy({ id: infoDto.hostId })) ||
+      this.hostRepo.create({ id: infoDto.hostId });
+    host.lat = infoDto.lat;
+    host.lon = infoDto.lon;
+    await this.hostRepo.save(host);
+    return host;
   }
 }

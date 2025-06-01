@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HostEntity } from './entities/host.entity';
 import { typeORMConfig } from '../../config/typeorm';
 import { AuthModule } from '../auth/auth.module';
+import { MemberService } from '../member/member.service';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { AuthModule } from '../auth/auth.module';
     forwardRef(() => AuthModule),
   ],
   controllers: [HostController],
-  providers: [HostService],
+  providers: [HostService, MemberService],
   exports: [HostService],
 })
 export class HostModule {}
