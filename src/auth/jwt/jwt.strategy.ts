@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import {
   ForbiddenException,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HostService } from '../../host/host.service';
@@ -28,7 +29,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const { role, name } = payload;
 
     if (!role || !name) {
-      throw new ForbiddenException('토큰 정보 부족');
+      throw new UnauthorizedException('토큰 정보 부족');
     }
 
     console.log(Object.values(Role));
@@ -36,15 +37,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     if (!Object.values(Role).includes(role)) {
       throw new ForbiddenException('유효하지 않은 역할');
     }
-/*
     const user =
       role === Role.host
         ? await this.hostService.findOneByName(name)
         : await this.memberService.findOneByName(name);
-*/
-    const user = await this.hostService.findOneByName(name);
     if (!user) {
-      throw new ForbiddenException('유저 없음');
+      throw new UnauthorizedException('유저 없음');
     }
     return new User(role, user);
   }

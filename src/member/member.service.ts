@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MemberEntity } from './entities/member.entity';
 import { Repository } from 'typeorm';
@@ -6,6 +11,9 @@ import { AuthService } from '../auth/auth.service';
 import { HostEntity } from '../host/entities/host.entity';
 import { MemberInfo } from '../device/dto/info.dto';
 import { Danger } from './dto/danger';
+import { SignupMemberDto } from './dto/signup.dto';
+import { MemberLoginDto } from './dto/member.login.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class MemberService {
@@ -68,6 +76,48 @@ export class MemberService {
 
   async save(member: MemberEntity) {
     await this.memberRepo.save(member);
+  }
+
+  async signup(signupMemberDto: SignupMemberDto) {
+    const member = await this.memberRepo.findOneBy({
+      deviceId: signupMemberDto.deviceId,
+    });
+    if (!member) {
+      throw new HttpException('Device not found', HttpStatus.NOT_FOUND);
+    }
+    const hostExists = await this.memberRepo.findOneBy({
+      id: signupMemberDto.memberId,
+    });
+    if (member.id != null || hostExists) {
+      console.log(member.id, hostExists);
+      throw new HttpException('Host already exists', HttpStatus.CONFLICT);
+    }
+    const newMember = new MemberEntity();
+    newMember.deviceId = signupMemberDto.deviceId;
+    newMember.id = signupMemberDto.memberId;
+    newMember.password = await bcrypt.hash(signupMemberDto.password, 10);
+    newMember.memberId = member.memberId;
+    return await this.memberRepo.save(newMember);
+  }
+
+  async login(memberLoginDto: MemberLoginDto) {
+    const member = await this.memberRepo.findOneBy({
+      id: memberLoginDto.memberId,
+    });
+    if (!member) {
+      throw new BadRequestException('호스트를 찾지 못했습니다');
+    }
+    if (!(await bcrypt.compare(memberLoginDto.password, member.password))) {
+      throw new BadRequestException('비밀번호가 올바르지 않습니다');
+    }
+    return await this.tokenService.issueTokenLogin(
+      memberLoginDto.memberId,
+      'member',
+    );
+  }
+
+  async findOneByName(name: string) {
+    return await this.memberRepo.findOneBy({ id: name });
   }
 }
 

@@ -4,6 +4,7 @@ import { RefreshTokenEntity } from './jwt/refresh.token.entity';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { TokenDto } from './token.dto';
 
 @Injectable()
 export class AuthService {
@@ -68,6 +69,6 @@ export class AuthService {
       expiresIn: '1h', // 필요하면 변경
     });
 
-    return { accessToken, refreshToken: token };
+    return new TokenDto(accessToken, token);
   }
 }

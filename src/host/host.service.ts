@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 import { SignupHostDto } from './dto/signup-host.dto';
 import * as bcrypt from 'bcrypt';
 import { User } from '../auth/user/user';
-import { LoginDto } from '../auth/user/login.dto';
+import { LoginDto } from './dto/login.dto';
 import { AuthService } from '../auth/auth.service';
 import { DistanceInfo, InfoDto } from '../device/dto/info.dto';
 import { MemberService } from '../member/member.service';
@@ -53,13 +53,11 @@ export class HostService {
   }
 
   async login(loginDto: LoginDto) {
-    console.log(loginDto);
     const host = await this.hostRepo.findOneBy({ id: loginDto.hostId });
     if (!host) {
       throw new BadRequestException('호스트를 찾지 못했습니다');
     }
     if (!(await bcrypt.compare(loginDto.password, host.password))) {
-      console.log('bcrypt.compare(loginDto.password, host.password) === flase');
       throw new BadRequestException('비밀번호가 올바르지 않습니다');
     }
     return await this.tokenService.issueTokenLogin(loginDto.hostId, 'host');

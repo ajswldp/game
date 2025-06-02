@@ -5,7 +5,7 @@ import { UpdateDeviceDto } from './dto/update-device.dto';
 import { Server, Socket } from 'socket.io';
 import { InfoDto } from './dto/info.dto';
 
-@WebSocketGateway()
+@WebSocketGateway({ namespace: '/device/location' })
 export class DeviceGateway {
   constructor(private readonly deviceService: DeviceService) {}
   private clients: Map<string, Socket> = new Map();

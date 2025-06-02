@@ -5,7 +5,7 @@ import { JwtAuthGuard } from '../auth/jwt/jwt.guard';
 import { Roles } from '../auth/decorator/roles.decorator';
 import { CurrentUser } from '../auth/decorator/user.decorator';
 import { User } from '../auth/user/user';
-import { LoginDto } from '../auth/user/login.dto';
+import { LoginDto } from './dto/login.dto';
 import { RolesGuard } from '../auth/role.guard';
 import { DistanceInfo } from '../device/dto/info.dto';
 
@@ -27,9 +27,7 @@ export class HostController {
     await this.hostService.signup(signupHostDto);
   }
   @Post('/login')
-  async login(
-    @Body() loginDto: LoginDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async login(@Body() loginDto: LoginDto) {
     return await this.hostService.login(loginDto);
   }
 }
