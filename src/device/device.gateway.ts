@@ -15,6 +15,6 @@ export class DeviceGateway {
 
   @SubscribeMessage('info')
   async info(client: Socket, infoDto: InfoDto) {
-    return await this.deviceService.info(infoDto);
+    client.emit('danger', await this.deviceService.info(infoDto));
   }
 }

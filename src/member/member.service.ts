@@ -14,6 +14,8 @@ import { Danger } from './dto/danger';
 import { SignupMemberDto } from './dto/signup.dto';
 import { MemberLoginDto } from './dto/member.login.dto';
 import * as bcrypt from 'bcrypt';
+import { MemberGateway } from './member.gateway';
+import { MemberInfoDto } from './dto/member.info.dto';
 
 @Injectable()
 export class MemberService {
@@ -21,6 +23,7 @@ export class MemberService {
     @InjectRepository(MemberEntity)
     private readonly memberRepo: Repository<MemberEntity>,
     private readonly tokenService: AuthService,
+    private readonly memberGateway: MemberGateway,
   ) {}
   async info(host: HostEntity, membersInfo: MemberInfo[]) {
     const dto: Danger = new Danger();
@@ -33,7 +36,31 @@ export class MemberService {
       if (member) {
         member.lon = memberInfo.lon;
         member.lat = memberInfo.lat;
-        const distance = this.distance(host, member);
+        const distance = calculateDistanceInMeters(
+          host.lat,
+          host.lon,
+          member.lat,
+          member.lon,
+        );
+        const danger = getDanger(distance, host);
+        const memberInfoDto: MemberInfoDto = {
+          danger: danger,
+          distanceInfo: {
+            safe: host.safe,
+            warning: host.warning,
+            danger: host.danger,
+          },
+          distance: distance,
+          host: {
+            lat: host.lat,
+            lon: host.lon,
+          },
+          member: {
+            lat: member.lat,
+            lon: member.lon,
+          },
+        };
+        this.memberGateway.info(member, memberInfoDto);
         if (distance !== member.danger) {
           member.danger = distance;
           dto.denger.push({ id: member.deviceId, distance: distance });
@@ -46,30 +73,19 @@ export class MemberService {
           lat: memberInfo.lat,
           name: `멤버${count[1]++}`,
         });
-        const distance = this.distance(host, member);
-        dto.denger.push({ id: member.deviceId, distance: distance });
+        const distance = calculateDistanceInMeters(
+          host.lat,
+          host.lon,
+          member.lat,
+          member.lon,
+        );
+        const danger = getDanger(distance, host);
+        dto.denger.push({ id: member.deviceId, distance: danger });
       }
     }
     return dto;
   }
-  private distance(host: HostEntity, memberInfo: MemberEntity): number {
-    const length = calculateDistanceInMeters(
-      host.lat,
-      host.lon,
-      memberInfo.lat,
-      memberInfo.lon,
-    );
 
-    if (length < host.safe) {
-      return 0;
-    } else if (length < host.warning) {
-      return 1;
-    } else if (length < host.danger) {
-      return 2;
-    } else {
-      return 3;
-    }
-  }
   async findOneByNameAndHost(name: string, host: HostEntity) {
     return await this.memberRepo.findOneBy({ id: name, host: host });
   }
@@ -148,4 +164,19 @@ const calculateDistanceInMeters = (
 
   // km를 m로 변환하여 반환
   return distanceInKm * 1000;
+};
+
+const getDanger: (length: number, host: HostEntity) => number = (
+  length: number,
+  host: HostEntity,
+) => {
+  if (length < host.safe) {
+    return 0;
+  } else if (length < host.warning) {
+    return 1;
+  } else if (length < host.danger) {
+    return 2;
+  } else {
+    return 3;
+  }
 };
