@@ -37,6 +37,7 @@ export class MemberGateway implements OnGatewayConnection {
       else {
         client.data.user = user;
         this.clients.set(user, client);
+        this.memberService.location(user);
       }
     } catch (err) {
       client.disconnect();

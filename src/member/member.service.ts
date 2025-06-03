@@ -25,6 +25,31 @@ export class MemberService {
     private readonly tokenService: AuthService,
     private readonly memberGateway: MemberGateway,
   ) {}
+  location(user: MemberEntity) {
+    const memberInfoDto: MemberInfoDto = {
+      danger: user.danger,
+      distanceInfo: {
+        safe: user.host.safe,
+        warning: user.host.warning,
+        danger: user.host.danger,
+      },
+      distance: calculateDistanceInMeters(
+        user.lat,
+        user.lon,
+        user.host.lat,
+        user.host.lon,
+      ),
+      host: {
+        lat: user.host.lat,
+        lon: user.host.lon,
+      },
+      member: {
+        lat: user.lat,
+        lon: user.lon,
+      },
+    };
+    this.memberGateway.info(user, memberInfoDto);
+  }
   async info(host: HostEntity, membersInfo: MemberInfo[]) {
     const dto: Danger = new Danger();
     const count = await this.memberRepo.findAndCountBy({ host: host });
@@ -43,44 +68,30 @@ export class MemberService {
           member.lon,
         );
         const danger = getDanger(distance, host);
-        const memberInfoDto: MemberInfoDto = {
-          danger: danger,
-          distanceInfo: {
-            safe: host.safe,
-            warning: host.warning,
-            danger: host.danger,
-          },
-          distance: distance,
-          host: {
-            lat: host.lat,
-            lon: host.lon,
-          },
-          member: {
-            lat: member.lat,
-            lon: member.lon,
-          },
-        };
-        this.memberGateway.info(member, memberInfoDto);
-        if (distance !== member.danger) {
-          member.danger = distance;
+        if (danger !== member.danger) {
+          member.danger = danger;
           dto.denger.push({ id: member.deviceId, distance: distance });
         }
+        await this.memberRepo.save(member);
+        this.location(member);
       } else {
+        const distance = calculateDistanceInMeters(
+          host.lat,
+          host.lon,
+          memberInfo.lat,
+          memberInfo.lon,
+        );
+        const danger = getDanger(distance, host);
         const member = this.memberRepo.create({
           deviceId: memberInfo.memberId,
           host: host,
           lon: memberInfo.lon,
           lat: memberInfo.lat,
           name: `멤버${count[1]++}`,
+          danger: danger,
         });
-        const distance = calculateDistanceInMeters(
-          host.lat,
-          host.lon,
-          member.lat,
-          member.lon,
-        );
-        const danger = getDanger(distance, host);
         dto.denger.push({ id: member.deviceId, distance: danger });
+        this.location(member);
       }
     }
     return dto;
