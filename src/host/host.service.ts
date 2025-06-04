@@ -72,6 +72,12 @@ export class HostService {
   async findOneByName(name: string) {
     return await this.hostRepo.findOneBy({ id: name });
   }
+  async findOneName(name: string) {
+    return await this.hostRepo.findOne({
+      where: { id: name },
+      relations: ['member'],
+    });
+  }
 
   async distance(user: User, distanceInfo: DistanceInfo) {
     const host = user.entity as HostEntity;

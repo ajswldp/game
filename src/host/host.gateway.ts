@@ -25,14 +25,16 @@ export class HostGateway implements OnGatewayConnection {
   private clients: Map<HostEntity, CustomSocket> = new Map();
 
   async handleConnection(client: CustomSocket) {
-    // 소켓 handshake에서 token 가져오기
-    const token = client.handshake.auth?.token as string;
+    const authorization = client.handshake.query.Authorization as string;
+    const token = authorization.replace('Bearer ', '');
 
     try {
-      const payload = this.jwtService.verify<JwtPayload>(token);
+      const payload = this.jwtService.verify<JwtPayload>(token, {
+        secret: process.env.JWT_ACCESS_SECRET,
+      });
       if (payload.role !== Role.member)
         throw new ForbiddenException('권한이 없습니다');
-      const user = await this.hostService.findOneByName(payload.name);
+      const user = await this.hostService.findOneName(payload.name);
       if (!user) throw new UnauthorizedException('잘못된 유저');
       else {
         client.data.user = user;
