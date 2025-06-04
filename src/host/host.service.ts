@@ -101,8 +101,8 @@ export class HostService {
 
   async info(infoDto: InfoDto) {
     const host =
-      (await this.hostRepo.findOneBy({ id: infoDto.hostId })) ||
-      this.hostRepo.create({ id: infoDto.hostId });
+      (await this.hostRepo.findOneBy({ deviceId: infoDto.hostId })) ||
+      this.hostRepo.create({ deviceId: infoDto.hostId });
     host.lat = infoDto.lat;
     host.lon = infoDto.lon;
     await this.hostRepo.save(host);

@@ -1,7 +1,9 @@
-import { WebSocketGateway, SubscribeMessage, MessageBody, WebSocketServer } from '@nestjs/websockets';
+import {
+  WebSocketGateway,
+  SubscribeMessage,
+  WebSocketServer,
+} from '@nestjs/websockets';
 import { DeviceService } from './device.service';
-import { CreateDeviceDto } from './dto/create-device.dto';
-import { UpdateDeviceDto } from './dto/update-device.dto';
 import { Server, Socket } from 'socket.io';
 import { InfoDto } from './dto/info.dto';
 
@@ -15,6 +17,9 @@ export class DeviceGateway {
 
   @SubscribeMessage('info')
   async info(client: Socket, infoDto: InfoDto) {
-    client.emit('danger', await this.deviceService.info(infoDto));
+    const dto = await this.deviceService.info(infoDto);
+    console.log(dto);
+    if (dto.denger.length > 0) client.emit('danger', dto);
+    return;
   }
 }

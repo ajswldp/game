@@ -5,7 +5,7 @@ export interface MemberInfo {
 }
 
 export class InfoDto {
-  hostId: string;
+  hostId: number;
   lat: number;
   lon: number;
   members: MemberInfo[]; // 명확하게 배열 타입으로!
