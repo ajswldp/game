@@ -13,6 +13,8 @@ export class DeviceService {
   ) {}
   async info(infoDto: InfoDto) {
     const host = await this.hostService.info(infoDto);
-    return await this.membersService.info(host, infoDto.members);
+    const dto = await this.membersService.info(host, infoDto.members);
+    await this.hostService.location(host);
+    return dto;
   }
 }

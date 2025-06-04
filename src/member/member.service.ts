@@ -146,6 +146,9 @@ export class MemberService {
   async findOneByName(name: string) {
     return await this.memberRepo.findOneBy({ id: name });
   }
+  async findByHost(host: HostEntity) {
+    return await this.memberRepo.findBy({ host: host });
+  }
 }
 
 const EARTH_RADIUS_KM = 6371;
