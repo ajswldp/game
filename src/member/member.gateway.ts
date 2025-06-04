@@ -7,10 +7,14 @@ import {
 } from '@nestjs/websockets';
 import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
-import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  forwardRef,
+  Inject,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtPayload, Role } from '../auth/jwt/jwt.config';
 import { MemberService } from './member.service';
-import { User } from '../auth/user/user';
 import { MemberEntity } from './entities/member.entity';
 import { MemberInfoDto } from './dto/member.info.dto';
 
@@ -20,6 +24,7 @@ import { MemberInfoDto } from './dto/member.info.dto';
 export class MemberGateway implements OnGatewayConnection {
   constructor(
     private readonly jwtService: JwtService,
+    @Inject(forwardRef(() => MemberService))
     private readonly memberService: MemberService,
   ) {}
   private clients: Map<MemberEntity, CustomSocket> = new Map();

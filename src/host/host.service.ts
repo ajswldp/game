@@ -1,7 +1,7 @@
 import {
-  BadRequestException,
+  BadRequestException, forwardRef,
   HttpException,
-  HttpStatus,
+  HttpStatus, Inject,
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -26,6 +26,7 @@ export class HostService {
     private readonly hostRepo: Repository<HostEntity>,
     private readonly tokenService: AuthService,
     private readonly memberService: MemberService,
+    @Inject(forwardRef(() => HostGateway))
     private readonly hostGateway: HostGateway,
   ) {}
 

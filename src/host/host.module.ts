@@ -3,18 +3,18 @@ import { HostService } from './host.service';
 import { HostController } from './host.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HostEntity } from './entities/host.entity';
-import { typeORMConfig } from '../../config/typeorm';
 import { AuthModule } from '../auth/auth.module';
-import { MemberService } from '../member/member.service';
+import { MemberModule } from '../member/member.module';
+import { HostGateway } from './host.gateway';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([HostEntity]),
-    TypeOrmModule.forRoot(typeORMConfig),
     forwardRef(() => AuthModule),
+    forwardRef(() => MemberModule),
   ],
   controllers: [HostController],
-  providers: [HostService, MemberService],
-  exports: [HostService],
+  providers: [HostService, HostGateway],
+  exports: [HostService, HostGateway],
 })
 export class HostModule {}

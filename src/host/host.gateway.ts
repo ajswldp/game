@@ -7,7 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
-import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, forwardRef, Inject, UnauthorizedException } from '@nestjs/common';
 import { JwtPayload, Role } from '../auth/jwt/jwt.config';
 import { HostService } from './host.service';
 import { HostEntity } from './entities/host.entity';
@@ -19,6 +19,7 @@ import { HostInfoDto } from './dto/host.info.dto';
 export class HostGateway implements OnGatewayConnection {
   constructor(
     private readonly jwtService: JwtService,
+    @Inject(forwardRef(() => HostService))
     private readonly hostService: HostService,
   ) {}
   private clients: Map<HostEntity, CustomSocket> = new Map();

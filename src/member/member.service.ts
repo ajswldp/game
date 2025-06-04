@@ -1,7 +1,7 @@
 import {
-  BadRequestException,
+  BadRequestException, forwardRef,
   HttpException,
-  HttpStatus,
+  HttpStatus, Inject,
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,7 +23,8 @@ export class MemberService {
     @InjectRepository(MemberEntity)
     private readonly memberRepo: Repository<MemberEntity>,
     private readonly tokenService: AuthService,
-    private readonly memberGateway: MemberGateway,
+    @Inject(forwardRef(() => MemberGateway))
+      private readonly memberGateway: MemberGateway,
   ) {}
   location(user: MemberEntity) {
     const memberInfoDto: MemberInfoDto = {
