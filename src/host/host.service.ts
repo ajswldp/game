@@ -1,7 +1,9 @@
 import {
-  BadRequestException, forwardRef,
+  BadRequestException,
+  forwardRef,
   HttpException,
-  HttpStatus, Inject,
+  HttpStatus,
+  Inject,
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,7 +18,6 @@ import { DistanceInfo, InfoDto } from '../device/dto/info.dto';
 import { MemberService } from '../member/member.service';
 import { NameDto } from './dto/name.dto';
 import { HostGateway } from './host.gateway';
-import { MemberInfoDto } from '../member/dto/member.info.dto';
 import { HostInfoDto } from './dto/host.info.dto';
 
 @Injectable()

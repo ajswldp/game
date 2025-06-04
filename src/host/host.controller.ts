@@ -30,4 +30,10 @@ export class HostController {
   async login(@Body() loginDto: LoginDto) {
     return await this.hostService.login(loginDto);
   }
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('host')
+  @Get('/test')
+  test(@CurrentUser() user: User) {
+    return this.hostService.test(user);
+  }
 }
