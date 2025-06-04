@@ -10,7 +10,6 @@ import { InfoDto } from './dto/info.dto';
 @WebSocketGateway({ namespace: '/device/location' })
 export class DeviceGateway {
   constructor(private readonly deviceService: DeviceService) {}
-  private clients: Map<string, Socket> = new Map();
 
   @WebSocketServer()
   server: Server;
