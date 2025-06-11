@@ -17,7 +17,6 @@ export class AuthService {
 
   async issueTokenLogin(userId: string, role: 'host' | 'member') {
     const refreshToken = await this.issueRefreshToken(userId, role);
-    console.log('issueTokenLogin', refreshToken);
     return await this.reissueAccessToken(refreshToken);
   }
   async issueRefreshToken(userId: string, role: 'host' | 'member') {
@@ -36,7 +35,6 @@ export class AuthService {
 
     // expiresAt 계산
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // fallback 7d
-    console.log('issueRefreshToken', userId, role, refreshToken, expiresAt);
     // DB 저장
     const entity = this.refreshTokenRepo.create({
       userId,

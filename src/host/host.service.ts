@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HostEntity } from './entities/host.entity';
@@ -30,6 +31,7 @@ export class HostService {
     @Inject(forwardRef(() => HostGateway))
     private readonly hostGateway: HostGateway,
   ) {}
+  private readonly logger = new Logger('HostService');
 
   test(user: User) {
     const entity = user.entity as HostEntity;
@@ -37,6 +39,7 @@ export class HostService {
   }
 
   async signup(signupHostDto: SignupHostDto) {
+    this.logger.log('signup', signupHostDto);
     const host = await this.hostRepo.findOneBy({
       deviceId: signupHostDto.deviceId,
     });
@@ -47,7 +50,6 @@ export class HostService {
       id: signupHostDto.hostId,
     });
     if (host.id != null || hostExists) {
-      console.log(host.id, hostExists);
       throw new HttpException('Host already exists', HttpStatus.CONFLICT);
     }
     const newHost = new HostEntity();
@@ -59,6 +61,7 @@ export class HostService {
   }
 
   async login(loginDto: LoginDto) {
+    this.logger.log('login', loginDto);
     const host = await this.hostRepo.findOneBy({ id: loginDto.hostId });
     if (!host) {
       throw new BadRequestException('호스트를 찾지 못했습니다');
@@ -80,6 +83,7 @@ export class HostService {
   }
 
   async distance(user: User, distanceInfo: DistanceInfo) {
+    this.logger.log('distance', distanceInfo, User);
     const host = user.entity as HostEntity;
     host.safe = distanceInfo.safe;
     host.warning = distanceInfo.warning;
@@ -88,6 +92,7 @@ export class HostService {
   }
 
   async name(user: User, nameInfo: NameDto) {
+    this.logger.log('name', nameInfo, user);
     const host = user.entity as HostEntity;
     const member = await this.memberService.findOneByNameAndHost(
       nameInfo.beforeName,
@@ -106,6 +111,7 @@ export class HostService {
   }
 
   async info(infoDto: InfoDto) {
+    this.logger.log('info', infoDto);
     const host =
       (await this.hostRepo.findOneBy({ deviceId: infoDto.hostId })) ||
       this.hostRepo.create({ deviceId: infoDto.hostId });

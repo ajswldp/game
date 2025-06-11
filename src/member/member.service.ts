@@ -19,11 +19,13 @@ import * as bcrypt from 'bcrypt';
 import { MemberGateway } from './member.gateway';
 import { MemberInfoDto } from './dto/member.info.dto';
 import { User } from 'src/auth/user/user';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class MemberService {
+  private readonly logger = new Logger('MemberService');
+
   test(user: User) {
-    console.log(user);
     return user;
   }
   constructor(
@@ -34,7 +36,7 @@ export class MemberService {
     private readonly memberGateway: MemberGateway,
   ) {}
   location(user: MemberEntity) {
-    console.log('location:', user);
+    this.logger.log('location', user);
     const memberInfoDto: MemberInfoDto = {
       danger: user.danger,
       distanceInfo: {
@@ -57,23 +59,21 @@ export class MemberService {
         lon: user.lon,
       },
     };
+    this.logger.log('memberInfoDto', memberInfoDto);
     this.memberGateway.info(user, memberInfoDto);
   }
   async info(host: HostEntity, membersInfo: MemberInfo[]) {
-    console.log('host:', host);
+    this.logger.log('info', host, membersInfo);
     const dto: Danger = new Danger();
     dto.denger = [];
     const count = await this.memberRepo.findAndCountBy({ host: host });
 
     for (const memberInfo of membersInfo) {
-      console.log('memberInfo:', memberInfo);
       const member = await this.memberRepo.findOne({
         where: { deviceId: memberInfo.memberId },
         relations: ['host'],
       });
-      console.log('for시작 전 member:', member);
       if (member) {
-        console.log('memberInfo: is member', memberInfo);
         member.lon = memberInfo.lon;
         member.lat = memberInfo.lat;
         const distance = calculateDistanceInMeters(
@@ -83,11 +83,11 @@ export class MemberService {
           member.lon,
         );
         const danger = getDanger(distance, host);
-        console.log('host:', host);
         if (danger !== member.danger) {
           member.danger = danger;
           dto.denger.push({ id: member.deviceId, distance: danger });
         }
+        this.logger.log('isMember', member);
         await this.memberRepo.save(member);
         this.location(member);
       } else {
@@ -98,7 +98,6 @@ export class MemberService {
           memberInfo.lon,
         );
         const danger = getDanger(distance, host);
-        console.log('host:', host);
         const member = this.memberRepo.create({
           deviceId: memberInfo.memberId,
           host: host,
@@ -107,7 +106,7 @@ export class MemberService {
           name: `멤버${count[1]++}`,
           danger: danger,
         });
-        console.log('member:', member);
+        this.logger.log('isNotMember', member);
         await this.memberRepo.save(member);
         dto.denger.push({ id: member.deviceId, distance: danger });
         this.location(member);
