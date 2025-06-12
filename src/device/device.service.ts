@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateDeviceDto } from './dto/create-device.dto';
-import { UpdateDeviceDto } from './dto/update-device.dto';
 import { InfoDto } from './dto/info.dto';
 import { HostService } from '../host/host.service';
 import { MemberService } from '../member/member.service';

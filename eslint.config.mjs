@@ -31,7 +31,7 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-argument': 'warn',
       'prettier/prettier': ['warn', { endOfLine: 'auto' }],
       '@typescript-eslint/no-unsafe-call': 'warn',
-      '@typescript-eslint/no-unused-vars': 'warn'
+      '@typescript-eslint/no-unused-vars': 'warn',
     },
   },
 );

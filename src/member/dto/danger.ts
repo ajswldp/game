@@ -1,3 +1,6 @@
+import { IsDefined } from 'class-validator';
+
 export class Danger {
-  denger: { id: number; distance: number }[];
+  @IsDefined()
+  danger: { id: number; distance: number }[];
 }
