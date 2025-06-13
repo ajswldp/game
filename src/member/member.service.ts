@@ -146,6 +146,7 @@ export class MemberService {
   }
 
   async login(memberLoginDto: MemberLoginDto) {
+    this.logger.log('login', memberLoginDto);
     const member = await this.memberRepo.findOneBy({
       id: memberLoginDto.memberId,
     });
