@@ -21,7 +21,7 @@ export class AuthService {
   }
   async issueRefreshToken(userId: string, role: 'host' | 'member') {
     // payload 구성
-    const payload = { role, name: userId };
+    const payload = {};
 
     // 만료 주기 읽기
     const expiresIn = '7d';
