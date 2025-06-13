@@ -18,7 +18,7 @@ export class DeviceGateway {
   async info(client: Socket, infoDto: InfoDto) {
     const dto = await this.deviceService.info(infoDto);
     console.log(dto);
-    if (dto.denger.length > 0) client.emit('danger', dto);
+    if (dto.danger.length > 0) client.emit('danger', dto);
     return;
   }
 }

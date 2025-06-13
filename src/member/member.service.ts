@@ -65,7 +65,7 @@ export class MemberService {
   async info(host: HostEntity, membersInfo: MemberInfo[]) {
     this.logger.log('info', host, membersInfo);
     const dto: Danger = new Danger();
-    dto.denger = [];
+    dto.danger = [];
     const count = await this.memberRepo.findAndCountBy({ host: host });
 
     for (const memberInfo of membersInfo) {
@@ -85,7 +85,7 @@ export class MemberService {
         const danger = getDanger(distance, host);
         if (danger !== member.danger) {
           member.danger = danger;
-          dto.denger.push({ id: member.deviceId, distance: danger });
+          dto.danger.push({ id: member.deviceId, distance: danger });
         }
         this.logger.log('isMember', member);
         await this.memberRepo.save(member);
@@ -108,7 +108,7 @@ export class MemberService {
         });
         this.logger.log('isNotMember', member);
         await this.memberRepo.save(member);
-        dto.denger.push({ id: member.deviceId, distance: danger });
+        dto.danger.push({ id: member.deviceId, distance: danger });
         this.location(member);
       }
     }
