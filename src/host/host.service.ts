@@ -91,21 +91,22 @@ export class HostService {
     await this.hostRepo.save(host);
   }
 
-  async name(user: User, nameInfo: NameDto) {
-    this.logger.log('name', nameInfo, user);
+  async name(user: User, nameDto: NameDto) {
+    this.logger.log('name', nameDto, user);
     const host = user.entity as HostEntity;
     const member = await this.memberService.findOneByNameAndHost(
-      nameInfo.beforeName,
+      nameDto.beforeName,
       host,
     );
+    this.logger.log('member', member, 'hostMember', this.memberService.findByHost(host));
     if (!member) {
       throw new BadRequestException('찾을 수 없는 이름 입니다');
     } else if (
-      await this.memberService.findOneByNameAndHost(nameInfo.afterName, host)
+      await this.memberService.findOneByNameAndHost(nameDto.afterName, host)
     ) {
       throw new BadRequestException('이미 있는 이름 입니다');
     } else {
-      member.name = nameInfo.afterName;
+      member.name = nameDto.afterName;
       await this.memberService.save(member);
     }
   }
