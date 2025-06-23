@@ -78,7 +78,7 @@ export class HostService {
   async findOneName(name: string) {
     return await this.hostRepo.findOne({
       where: { id: name },
-      relations: ['member'],
+      relations: ['members'],
     });
   }
 
