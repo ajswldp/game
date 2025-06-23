@@ -1,3 +1,5 @@
+import { IsString } from 'class-validator';
+
 export class TokenDto {
   constructor(accessToken: string, refreshToken: string) {
     this.accessToken = accessToken;
@@ -8,5 +10,6 @@ export class TokenDto {
   refreshToken: string;
 }
 export class RefreshTokenDto {
+  @IsString()
   refreshToken: string;
 }
