@@ -98,7 +98,7 @@ export class HostService {
       nameDto.beforeName,
       host,
     );
-    this.logger.log('member', member, 'hostMember', this.memberService.findByHost(host));
+    this.logger.log('member', member, 'hostMember', await this.memberService.findByHost(host));
     if (!member) {
       throw new BadRequestException('찾을 수 없는 이름 입니다');
     } else if (
