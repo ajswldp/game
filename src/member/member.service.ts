@@ -117,6 +117,7 @@ export class MemberService {
 
   async findOneByNameAndHost(name: string, host: HostEntity) {
     this.logger.log('findOneByNameAndHost', name);
+    this.logger.log(await this.memberRepo.findBy({ name }));
     return await this.memberRepo.findOneBy({ name: name, host: host });
   }
 
