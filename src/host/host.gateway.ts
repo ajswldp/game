@@ -38,7 +38,8 @@ export class HostGateway implements OnGatewayConnection {
       this.logger.log('handleConnection', 'err', err);
       throw new UnauthorizedException('잘못된 유저');
     }
-    if (payload.role !== Role.member)
+    this.logger.log('handleConnection', payload);
+    if (payload.role !== Role.host)
       throw new ForbiddenException('권한이 없습니다');
     const user = await this.hostService.findOneName(payload.name);
     if (!user) throw new UnauthorizedException('잘못된 유저');

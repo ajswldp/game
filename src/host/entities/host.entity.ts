@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { MemberEntity } from '../../member/entities/member.entity';
 
 @Entity({ name: 'hosts' })
 export class HostEntity {
@@ -28,4 +29,7 @@ export class HostEntity {
 
   @Column({ type: 'int', default: 1000 })
   danger: number;
+
+  @OneToMany(() => MemberEntity, (member) => member.host)
+  members: MemberEntity[];
 }
