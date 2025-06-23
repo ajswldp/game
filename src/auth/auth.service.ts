@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RefreshTokenEntity } from './jwt/refresh.token.entity';
 import { Repository } from 'typeorm';
@@ -8,6 +8,7 @@ import { TokenDto } from './token.dto';
 
 @Injectable()
 export class AuthService {
+  private logger = new Logger('AuthController');
   constructor(
     @InjectRepository(RefreshTokenEntity)
     private readonly refreshTokenRepo: Repository<RefreshTokenEntity>,
@@ -49,8 +50,10 @@ export class AuthService {
   }
 
   async reissueAccessToken(token: string) {
+    this.logger.log(`Reissue access token for`, token);
     // 1. DB에 저장된 리프레시 토큰이 유효한지 검증
     const refreshToken = await this.refreshTokenRepo.findOneBy({ token });
+    this.logger.log(refreshToken);
     if (!refreshToken) {
       throw new UnauthorizedException('유효하지 않은 리프레시 토큰');
     }
