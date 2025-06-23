@@ -52,7 +52,9 @@ export class AuthService {
   async reissueAccessToken(token: string) {
     this.logger.log(`Reissue access token for`, token);
     // 1. DB에 저장된 리프레시 토큰이 유효한지 검증
-    const refreshToken = await this.refreshTokenRepo.findOneBy({ token });
+    const refreshToken = await this.refreshTokenRepo.findOneBy({
+      token: token,
+    });
     this.logger.log(refreshToken);
     if (!refreshToken) {
       throw new UnauthorizedException('유효하지 않은 리프레시 토큰');
