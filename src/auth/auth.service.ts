@@ -51,6 +51,7 @@ export class AuthService {
 
   async reissueAccessToken(token: string) {
     this.logger.log(`Reissue access token for`, token);
+    if (!token) throw new UnauthorizedException();
     // 1. DB에 저장된 리프레시 토큰이 유효한지 검증
     const refreshToken = await this.refreshTokenRepo.findOneBy({
       token: token,
