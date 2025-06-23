@@ -7,3 +7,6 @@ export class TokenDto {
   accessToken: string;
   refreshToken: string;
 }
+export class RefreshTokenDto {
+  refreshToken: string;
+}

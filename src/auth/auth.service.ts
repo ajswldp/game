@@ -4,7 +4,7 @@ import { RefreshTokenEntity } from './jwt/refresh.token.entity';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { TokenDto } from './token.dto';
+import { RefreshTokenDto, TokenDto } from './token.dto';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +18,7 @@ export class AuthService {
 
   async issueTokenLogin(userId: string, role: 'host' | 'member') {
     const refreshToken = await this.issueRefreshToken(userId, role);
-    return await this.reissueAccessToken(refreshToken);
+    return await this.reissueAccessToken({ refreshToken });
   }
   async issueRefreshToken(userId: string, role: 'host' | 'member') {
     // payload 구성
@@ -49,12 +49,13 @@ export class AuthService {
     return refreshToken;
   }
 
-  async reissueAccessToken(token: string) {
-    this.logger.log(`Reissue access token for`, token);
-    if (!token) throw new UnauthorizedException();
+  async reissueAccessToken(tokenDto: RefreshTokenDto) {
+    this.logger.log(`Reissue access token for`, tokenDto);
+    if (!tokenDto.refreshToken)
+      throw new UnauthorizedException('존재하지 않은 토큰');
     // 1. DB에 저장된 리프레시 토큰이 유효한지 검증
     const refreshToken = await this.refreshTokenRepo.findOneBy({
-      token: token,
+      token: tokenDto.refreshToken,
     });
     this.logger.log(refreshToken);
     if (!refreshToken) {
@@ -73,6 +74,6 @@ export class AuthService {
       expiresIn: '1h', // 필요하면 변경
     });
 
-    return new TokenDto(accessToken, token);
+    return new TokenDto(accessToken, tokenDto.refreshToken);
   }
 }
