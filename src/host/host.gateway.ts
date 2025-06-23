@@ -36,6 +36,7 @@ export class HostGateway implements OnGatewayConnection {
         secret: process.env.JWT_ACCESS_SECRET,
       });
     } catch (err) {
+      client._error(err);
       client.disconnect();
       this.logger.log('handleConnection', 'err', err);
       throw new UnauthorizedException('잘못된 유저');
