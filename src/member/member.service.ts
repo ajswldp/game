@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MemberEntity } from './entities/member.entity';
@@ -19,7 +20,6 @@ import * as bcrypt from 'bcrypt';
 import { MemberGateway } from './member.gateway';
 import { MemberInfoDto } from './dto/member.info.dto';
 import { User } from 'src/auth/user/user';
-import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class MemberService {
@@ -175,6 +175,21 @@ export class MemberService {
   }
   async findByHost(host: HostEntity) {
     return await this.memberRepo.findBy({ host: host });
+  }
+
+  async setDistance(host: HostEntity) {
+    const members = await this.memberRepo.findBy({ host });
+    for (const member of members) {
+      const length = calculateDistanceInMeters(
+        host.lat,
+        host.lon,
+        member.lat,
+        member.lon,
+      );
+      member.danger = getDanger(length, host);
+      await this.memberRepo.save(member);
+      this.location(member);
+    }
   }
 }
 

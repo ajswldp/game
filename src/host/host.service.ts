@@ -89,6 +89,8 @@ export class HostService {
     host.warning = distanceInfo.warning;
     host.danger = distanceInfo.danger;
     await this.hostRepo.save(host);
+    await this.memberService.setDistance(host);
+    await this.location(host);
   }
 
   async name(user: User, nameDto: NameDto) {
