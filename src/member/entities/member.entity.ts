@@ -25,7 +25,7 @@ export class MemberEntity {
   @Column({ type: 'varchar', nullable: true })
   password: string;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: false, collation: 'utf8mb4_general_ci' })
   name: string;
 
   @Column({ type: 'double', nullable: true })
