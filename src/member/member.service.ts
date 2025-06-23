@@ -164,11 +164,11 @@ export class MemberService {
   }
 
   async findOneByName(name: string) {
-    return await this.memberRepo.findOneBy({ id: name });
+    return await this.memberRepo.findOneBy({ name: name });
   }
   async findOneName(name: string) {
     return await this.memberRepo.findOne({
-      where: { id: name },
+      where: { name: name },
       relations: ['host'],
     });
   }
