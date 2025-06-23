@@ -27,6 +27,8 @@ export class HostGateway implements OnGatewayConnection {
 
   async handleConnection(client: CustomSocket) {
     const authorization = client.handshake.query.Authorization as string;
+    if (!authorization || !authorization.startsWith('Bearer '))
+      throw new UnauthorizedException();
     const token = authorization.replace('Bearer ', '');
     let payload: JwtPayload;
     try {
