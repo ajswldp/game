@@ -178,7 +178,10 @@ export class MemberService {
   }
 
   async setDistance(host: HostEntity) {
-    const members = await this.memberRepo.findBy({ host });
+    const members = await this.memberRepo.find({
+      where: { host: host },
+      relations: ['host'],
+    });
     for (const member of members) {
       const length = calculateDistanceInMeters(
         host.lat,
