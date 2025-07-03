@@ -34,8 +34,11 @@ export class HostGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleDisconnect(client: CustomSocket) {
     this.logger.log('handleDisconnect', client);
   }
-  handleConnection(client: CustomSocket) {
-
+   handleConnection(client: CustomSocket) {
+  }
+  info(user: HostEntity, dto: HostInfoDto) {
+    this.logger.log('info', user, dto);
+    this.clients.get(user)?.emit('info', dto);
   }
 }
 
