@@ -15,6 +15,8 @@ import { HostInfoDto } from './dto/host.info.dto';
 
 @WebSocketGateway({
   namespace: '/host/location', // 필요시 네임스페이스 지정
+  pingInterval: 3000,
+  pingTimeout: 30000, // 30초 안에 pong 응답 없으면 연결 끊음
 })
 export class HostGateway implements OnGatewayConnection {
   constructor(
