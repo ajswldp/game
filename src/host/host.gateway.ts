@@ -28,6 +28,7 @@ export class HostGateway implements OnGatewayConnection {
   private readonly logger = new Logger('HostGateway');
 
   async handleConnection(client: CustomSocket) {
+    this.logger.log('handleConnection', client);
     const authorization = client.handshake.query.Authorization as string;
     if (!authorization || !authorization.startsWith('Bearer '))
       throw new UnauthorizedException();
@@ -57,6 +58,9 @@ export class HostGateway implements OnGatewayConnection {
   info(user: HostEntity, dto: HostInfoDto) {
     this.logger.log('info', user, dto);
     this.clients.get(user)?.emit('info', dto);
+  }
+  handleDisconnect(client: CustomSocket) {
+    this.logger.log('handleDisconnect', client);
   }
 }
 
