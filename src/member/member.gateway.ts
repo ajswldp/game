@@ -1,10 +1,4 @@
-import {
-  ConnectedSocket,
-  MessageBody,
-  OnGatewayConnection,
-  SubscribeMessage,
-  WebSocketGateway,
-} from '@nestjs/websockets';
+import { OnGatewayConnection, WebSocketGateway } from '@nestjs/websockets';
 import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
 import {
@@ -32,7 +26,6 @@ export class MemberGateway implements OnGatewayConnection {
   async handleConnection(client: CustomSocket) {
     const authorization = client.handshake.query.Authorization as string;
     const token = authorization.replace('Bearer ', '');
-    console.log(token);
     try {
       const payload = this.jwtService.verify<JwtPayload>(token, {
         secret: process.env.JWT_ACCESS_SECRET,
