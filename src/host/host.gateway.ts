@@ -1,4 +1,8 @@
-import { OnGatewayConnection, WebSocketGateway } from '@nestjs/websockets';
+import {
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  WebSocketGateway,
+} from '@nestjs/websockets';
 import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
 import {
@@ -18,7 +22,7 @@ import { HostInfoDto } from './dto/host.info.dto';
   pingInterval: 3000,
   pingTimeout: 30000, // 30초 안에 pong 응답 없으면 연결 끊음
 })
-export class HostGateway implements OnGatewayConnection {
+export class HostGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly jwtService: JwtService,
     @Inject(forwardRef(() => HostService))
@@ -27,6 +31,9 @@ export class HostGateway implements OnGatewayConnection {
   private clients: Map<HostEntity, CustomSocket> = new Map();
   private readonly logger = new Logger('HostGateway');
 
+  handleDisconnect(client: CustomSocket) {
+    this.logger.log('handleDisconnect', client);
+  }
   async handleConnection(client: CustomSocket) {
     this.logger.log('handleConnection', client);
     const authorization = client.handshake.query.Authorization as string;
@@ -58,9 +65,6 @@ export class HostGateway implements OnGatewayConnection {
   info(user: HostEntity, dto: HostInfoDto) {
     this.logger.log('info', user, dto);
     this.clients.get(user)?.emit('info', dto);
-  }
-  handleDisconnect(client: CustomSocket) {
-    this.logger.log('handleDisconnect', client);
   }
 }
 
