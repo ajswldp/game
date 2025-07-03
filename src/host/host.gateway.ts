@@ -34,33 +34,14 @@ export class HostGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleDisconnect(client: CustomSocket) {
     this.logger.log('handleDisconnect', client);
   }
-  async handleConnection(client: CustomSocket) {
+  handleConnection(client: CustomSocket) {
     this.logger.log('handleConnection', client);
     const authorization = client.handshake.query.Authorization as string;
     if (!authorization || !authorization.startsWith('Bearer '))
       throw new UnauthorizedException();
     const token = authorization.replace('Bearer ', '');
     let payload: JwtPayload;
-    try {
-      payload = this.jwtService.verify<JwtPayload>(token, {
-        secret: process.env.JWT_ACCESS_SECRET,
-      });
-    } catch (err) {
-      client.emit('error', err);
-      client.disconnect();
-      this.logger.log('handleConnection', 'err', err);
-      throw new UnauthorizedException('잘못된 토큰입니다');
-    }
-    this.logger.log('handleConnection', payload);
-    if (payload.role !== Role.host)
-      throw new ForbiddenException('권한이 없습니다');
-    const user = await this.hostService.findOneName(payload.name);
-    if (!user) throw new UnauthorizedException('잘못된 유저');
-    else {
-      client.data.user = user;
-      this.clients.set(user, client);
-      await this.hostService.location(user);
-    }
+
   }
   info(user: HostEntity, dto: HostInfoDto) {
     this.logger.log('info', user, dto);
