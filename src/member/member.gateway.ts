@@ -21,7 +21,7 @@ export class MemberGateway implements OnGatewayConnection {
     @Inject(forwardRef(() => MemberService))
     private readonly memberService: MemberService,
   ) {}
-  private clients: Map<MemberEntity, CustomSocket> = new Map();
+  private clients: Map<string, CustomSocket> = new Map();
 
   async handleConnection(client: CustomSocket) {
     const authorization = client.handshake.query.Authorization as string;
@@ -37,17 +37,17 @@ export class MemberGateway implements OnGatewayConnection {
       if (!user) throw new UnauthorizedException('잘못된 유저');
       else {
         client.data.user = user;
-        this.clients.set(user, client);
+        this.clients.set(user.memberId, client);
         this.memberService.location(user);
       }
     } catch (err) {
       console.log(err);
       client.disconnect();
-      throw new UnauthorizedException('잘못된 유저');
+      throw err;
     }
   }
   info(user: MemberEntity, dto: MemberInfoDto) {
-    this.clients.get(user)?.emit('info', dto);
+    this.clients.get(user.memberId)?.emit('info', dto);
   }
 }
 

@@ -14,7 +14,7 @@ export class MemberEntity {
   host: HostEntity;
 
   @PrimaryGeneratedColumn('uuid')
-  memberId: number;
+  memberId: string;
 
   @Column({ type: 'int' })
   deviceId: number;

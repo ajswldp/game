@@ -28,7 +28,7 @@ export class HostGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @Inject(forwardRef(() => HostService))
     private readonly hostService: HostService,
   ) {}
-  private clients: Map<HostEntity, CustomSocket> = new Map();
+  private clients: Map<string, CustomSocket> = new Map();
   private readonly logger = new Logger('HostGateway');
 
   handleDisconnect() {
@@ -58,13 +58,12 @@ export class HostGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!user) throw new UnauthorizedException('잘못된 유저');
     else {
       client.data.user = user;
-      this.clients.set(user, client);
+      this.clients.set(user.hostId, client);
       await this.hostService.location(user);
     }
   }
   info(user: HostEntity, dto: HostInfoDto) {
-    this.logger.log('info', user, dto);
-    this.clients.get(user)?.emit('info', dto);
+    this.clients.get(user.hostId)?.emit('info', dto);
   }
 }
 
