@@ -1,4 +1,8 @@
-import { OnGatewayConnection, WebSocketGateway } from '@nestjs/websockets';
+import {
+  OnGatewayConnection,
+  SubscribeMessage,
+  WebSocketGateway,
+} from '@nestjs/websockets';
 import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
 import {
@@ -48,6 +52,10 @@ export class MemberGateway implements OnGatewayConnection {
   }
   info(user: MemberEntity, dto: MemberInfoDto) {
     this.clients.get(user.memberId)?.emit('info', dto);
+  }
+  @SubscribeMessage('info')
+  async hostInfo(client: CustomSocket, location: { lat: number; lon: number }){
+    await this.memberService.addLocation(client.data.user, location);
   }
 }
 

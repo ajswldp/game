@@ -118,6 +118,16 @@ export class HostService {
     }
   }
 
+  async addLocation(host: HostEntity, location: { lat: number; lon: number }) {
+    host.lat = location.lat;
+    host.lon = location.lon;
+    await this.hostRepo.save(host);
+    await this.location(host);
+    for (const member of host.members) {
+      this.memberService.location(member);
+    }
+  }
+
   async info(infoDto: InfoDto) {
     this.logger.log('info', infoDto);
     const host =

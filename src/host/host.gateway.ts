@@ -1,6 +1,6 @@
 import {
   OnGatewayConnection,
-  OnGatewayDisconnect,
+  OnGatewayDisconnect, SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets';
 import { JwtService } from '@nestjs/jwt';
@@ -64,6 +64,10 @@ export class HostGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
   info(user: HostEntity, dto: HostInfoDto) {
     this.clients.get(user.hostId)?.emit('info', dto);
+  }
+  @SubscribeMessage('info')
+  async hostInfo(client: CustomSocket, location: { lat: number; lon: number }){
+    await this.hostService.addLocation(client.data.user, location);
   }
 }
 

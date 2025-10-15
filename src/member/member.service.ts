@@ -20,6 +20,7 @@ import * as bcrypt from 'bcrypt';
 import { MemberGateway } from './member.gateway';
 import { MemberInfoDto } from './dto/member.info.dto';
 import { User } from 'src/auth/user/user';
+import { HostService } from '../host/host.service';
 
 @Injectable()
 export class MemberService {
@@ -34,6 +35,8 @@ export class MemberService {
     private readonly tokenService: AuthService,
     @Inject(forwardRef(() => MemberGateway))
     private readonly memberGateway: MemberGateway,
+    @Inject(forwardRef(() => HostService))
+    private readonly hostService: HostService,
   ) {}
   location(user: MemberEntity) {
     this.logger.log('location', user);
@@ -193,6 +196,16 @@ export class MemberService {
       await this.memberRepo.save(member);
       this.location(member);
     }
+  }
+  async addLocation(
+    member: MemberEntity,
+    location: { lat: number; lon: number },
+  ) {
+    member.lat = location.lat;
+    member.lon = location.lon;
+    await this.memberRepo.save(member);
+    this.location(member);
+    await this.hostService.location(member.host);
   }
 }
 
