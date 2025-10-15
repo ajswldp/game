@@ -5,7 +5,7 @@ import {
   HttpStatus,
   Inject,
   Injectable,
-  Logger,
+  Logger, NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HostEntity } from './entities/host.entity';
@@ -124,7 +124,7 @@ export class HostService {
     await this.hostRepo.save(host);
     await this.location(host);
     for (const member of host.members) {
-      this.memberService.location(member);
+      await this.memberService.location(member);
     }
   }
 
@@ -140,24 +140,31 @@ export class HostService {
     return host;
   }
   async location(user: HostEntity) {
+    const user2 = await this.hostRepo.findOne({
+      where: { hostId: user.hostId },
+      relations: ['members'],
+    });
+    if (!user2) {
+      throw new NotFoundException('그럴 리 없음');
+    }
     const hostInfoDto: HostInfoDto = {
-      host: { lat: user.lat, lon: user.lon },
+      host: { lat: user2.lat, lon: user2.lon },
       distanceInfo: {
-        safe: user.safe,
-        warning: user.warning,
-        danger: user.danger,
+        safe: user2.safe,
+        warning: user2.warning,
+        danger: user2.danger,
       },
       members: [],
     };
-    await this.memberService.findByHost(user).then((members) => {
+    await this.memberService.findByHost(user2).then((members) => {
       for (const member of members) {
         hostInfoDto.members.push({
           memberName: member.name,
           lat: member.lat,
           lon: member.lon,
           distance: calculateDistanceInMeters(
-            user.lat,
-            user.lon,
+            user2.lat,
+            user2.lon,
             member.lat,
             member.lon,
           ),
@@ -165,7 +172,7 @@ export class HostService {
         });
       }
     });
-    this.hostGateway.info(user, hostInfoDto);
+    this.hostGateway.info(user2, hostInfoDto);
   }
 }
 

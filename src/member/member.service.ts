@@ -6,6 +6,7 @@ import {
   Inject,
   Injectable,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MemberEntity } from './entities/member.entity';
@@ -38,28 +39,35 @@ export class MemberService {
     @Inject(forwardRef(() => HostService))
     private readonly hostService: HostService,
   ) {}
-  location(user: MemberEntity) {
+  async location(user: MemberEntity) {
     this.logger.log('location', user);
+    const user2 = await this.memberRepo.findOne({
+      where: { memberId: user.memberId },
+      relations: ['host'],
+    });
+    if (!user2) {
+      throw new NotFoundException('그럴 리 없음');
+    }
     const memberInfoDto: MemberInfoDto = {
-      danger: user.danger,
+      danger: user2.danger,
       distanceInfo: {
-        safe: user.host.safe,
-        warning: user.host.warning,
-        danger: user.host.danger,
+        safe: user2.host.safe,
+        warning: user2.host.warning,
+        danger: user2.host.danger,
       },
       distance: calculateDistanceInMeters(
-        user.lat,
-        user.lon,
-        user.host.lat,
-        user.host.lon,
+        user2.lat,
+        user2.lon,
+        user2.host.lat,
+        user2.host.lon,
       ),
       host: {
-        lat: user.host.lat,
-        lon: user.host.lon,
+        lat: user2.host.lat,
+        lon: user2.host.lon,
       },
       member: {
-        lat: user.lat,
-        lon: user.lon,
+        lat: user2.lat,
+        lon: user2.lon,
       },
     };
     this.logger.log('memberInfoDto', memberInfoDto);
@@ -92,7 +100,7 @@ export class MemberService {
         }
         this.logger.log('isMember', member);
         await this.memberRepo.save(member);
-        this.location(member);
+        await this.location(member);
       } else {
         const distance = calculateDistanceInMeters(
           host.lat,
@@ -112,7 +120,7 @@ export class MemberService {
         this.logger.log('isNotMember', member);
         await this.memberRepo.save(member);
         dto.danger.push({ id: member.deviceId, distance: danger });
-        this.location(member);
+        await this.location(member);
       }
     }
     return dto;
@@ -194,7 +202,7 @@ export class MemberService {
       );
       member.danger = getDanger(length, host);
       await this.memberRepo.save(member);
-      this.location(member);
+      await this.location(member);
     }
   }
   async addLocation(
@@ -204,7 +212,7 @@ export class MemberService {
     member.lat = location.lat;
     member.lon = location.lon;
     await this.memberRepo.save(member);
-    this.location(member);
+    await this.location(member);
     await this.hostService.location(member.host);
   }
 }

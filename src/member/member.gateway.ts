@@ -42,7 +42,7 @@ export class MemberGateway implements OnGatewayConnection {
       else {
         client.data.user = user;
         this.clients.set(user.memberId, client);
-        this.memberService.location(user);
+        await this.memberService.location(user);
       }
     } catch (err) {
       console.log(err);
@@ -54,7 +54,7 @@ export class MemberGateway implements OnGatewayConnection {
     this.clients.get(user.memberId)?.emit('info', dto);
   }
   @SubscribeMessage('info')
-  async hostInfo(client: CustomSocket, location: { lat: number; lon: number }){
+  async hostInfo(client: CustomSocket, location: { lat: number; lon: number }) {
     await this.memberService.addLocation(client.data.user, location);
   }
 }
