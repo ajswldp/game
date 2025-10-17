@@ -40,7 +40,6 @@ export class MemberService {
     private readonly hostService: HostService,
   ) {}
   async location(user: MemberEntity) {
-    this.logger.log('location', user);
     const user2 = await this.memberRepo.findOne({
       where: { memberId: user.memberId },
       relations: ['host'],
@@ -70,11 +69,9 @@ export class MemberService {
         lon: user2.lon,
       },
     };
-    this.logger.log('memberInfoDto', memberInfoDto);
     this.memberGateway.info(user, memberInfoDto);
   }
   async info(host: HostEntity, membersInfo: MemberInfo[]) {
-    this.logger.log('info', host, membersInfo);
     const dto: Danger = new Danger();
     dto.danger = [];
     const count = await this.memberRepo.findAndCountBy({ host: host });
@@ -98,7 +95,6 @@ export class MemberService {
           member.danger = danger;
           dto.danger.push({ id: member.deviceId, distance: danger });
         }
-        this.logger.log('isMember', member);
         await this.memberRepo.save(member);
         await this.location(member);
       } else {
@@ -117,7 +113,6 @@ export class MemberService {
           name: `멤버${count[1]++}`,
           danger: danger,
         });
-        this.logger.log('isNotMember', member);
         await this.memberRepo.save(member);
         dto.danger.push({ id: member.deviceId, distance: danger });
         await this.location(member);
@@ -127,8 +122,6 @@ export class MemberService {
   }
 
   async findOneByNameAndHost(name: string, host: HostEntity) {
-    this.logger.log('findOneByNameAndHost', name);
-    this.logger.log(await this.memberRepo.findBy({ name }));
     return await this.memberRepo.findOneBy({ name: name, host: host });
   }
 

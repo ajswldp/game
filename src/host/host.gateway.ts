@@ -45,6 +45,7 @@ export class HostGateway implements OnGatewayConnection, OnGatewayDisconnect {
       payload = this.jwtService.verify<JwtPayload>(token, {
         secret: process.env.JWT_ACCESS_SECRET,
       });
+      this.logger.log(payload)
     } catch (err) {
       client.emit('error', err);
       client.disconnect();
