@@ -113,6 +113,7 @@ export class HostService {
   }
 
   async addLocation(host: HostEntity, location: { lat: number; lon: number }) {
+    this.logger.log('addLocation', location, host);
     host.lat = location.lat;
     host.lon = location.lon;
     await this.hostRepo.save(host);
