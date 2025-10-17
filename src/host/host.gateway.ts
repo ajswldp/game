@@ -59,7 +59,9 @@ export class HostGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!user) throw new UnauthorizedException('잘못된 유저');
     else {
       client.data.user = user;
+      this.logger.log('handleConnection', this.clients.get(user.hostId));
       this.clients.get(user.hostId)?.push(client);
+      this.logger.log('handleConnection', this.clients.get(user.hostId));
       await this.hostService.location(user);
     }
   }
