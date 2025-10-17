@@ -118,6 +118,7 @@ export class HostService {
     host.lon = location.lon;
     await this.hostRepo.save(host);
     for (const member of host.members) {
+      this.logger.log('try location', member.name);
       await this.memberService.location(member);
     }
     await this.location(host);
