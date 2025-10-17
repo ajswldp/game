@@ -49,7 +49,6 @@ export class MemberGateway implements OnGatewayConnection {
     } catch (err) {
       console.log(err);
       client.disconnect();
-      throw err;
     }
   }
   info(user: MemberEntity, dto: MemberInfoDto) {
