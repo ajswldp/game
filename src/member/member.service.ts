@@ -47,6 +47,14 @@ export class MemberService {
     if (!user2) {
       throw new NotFoundException('그럴 리 없음');
     }
+    const distance = calculateDistanceInMeters(
+      user2.lat,
+      user2.lon,
+      user2.host.lat,
+      user2.host.lon,
+    );
+    user2.danger = getDanger(distance, user2.host);
+    await this.memberRepo.save(user2);
     const memberInfoDto: MemberInfoDto = {
       danger: user2.danger,
       distanceInfo: {
@@ -54,12 +62,7 @@ export class MemberService {
         warning: user2.host.warning,
         danger: user2.host.danger,
       },
-      distance: calculateDistanceInMeters(
-        user2.lat,
-        user2.lon,
-        user2.host.lat,
-        user2.host.lon,
-      ),
+      distance: distance,
       host: {
         lat: user2.host.lat,
         lon: user2.host.lon,
