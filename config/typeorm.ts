@@ -12,5 +12,5 @@ export const typeORMConfig: TypeOrmModuleOptions = {
   entities: [HostEntity],
   synchronize: true,
   autoLoadEntities: true,
-  logging: true,
+  logging: false,
 };

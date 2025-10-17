@@ -64,6 +64,7 @@ export class HostGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
   info(user: HostEntity, dto: HostInfoDto) {
+    this.logger.log('info', dto);
     this.clients.get(user.hostId)?.emit('info', dto);
   }
   @SubscribeMessage('info')

@@ -9,6 +9,7 @@ import {
   ForbiddenException,
   forwardRef,
   Inject,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtPayload, Role } from '../auth/jwt/jwt.config';
@@ -25,6 +26,7 @@ export class MemberGateway implements OnGatewayConnection {
     @Inject(forwardRef(() => MemberService))
     private readonly memberService: MemberService,
   ) {}
+  private readonly logger = new Logger('HostService');
   private clients: Map<string, CustomSocket> = new Map();
 
   async handleConnection(client: CustomSocket) {
@@ -51,6 +53,7 @@ export class MemberGateway implements OnGatewayConnection {
     }
   }
   info(user: MemberEntity, dto: MemberInfoDto) {
+    this.logger.log('info', dto);
     this.clients.get(user.memberId)?.emit('info', dto);
   }
   @SubscribeMessage('info')
