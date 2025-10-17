@@ -68,6 +68,9 @@ export class HostGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const aliveSockets = this.clients
       .get(user.hostId)
       ?.filter((socket) => socket.connected);
+    this.clients.get(user.hostId)?.forEach((socket) => {
+      this.logger.log('connected', socket.connected);
+    });
     if (!aliveSockets) return;
     this.clients.set(user.hostId, aliveSockets);
     aliveSockets.forEach((c) => {
