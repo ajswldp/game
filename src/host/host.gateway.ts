@@ -28,7 +28,7 @@ export class HostGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @Inject(forwardRef(() => HostService))
     private readonly hostService: HostService,
   ) {}
-  private clients: Map<string, CustomSocket> = new Map();
+  private clients: Map<string, Array<CustomSocket>> = new Map();
   private readonly logger = new Logger('HostGateway');
 
   handleDisconnect() {
@@ -45,7 +45,7 @@ export class HostGateway implements OnGatewayConnection, OnGatewayDisconnect {
       payload = this.jwtService.verify<JwtPayload>(token, {
         secret: process.env.JWT_ACCESS_SECRET,
       });
-      this.logger.log(payload)
+      this.logger.log(payload);
     } catch (err) {
       client.emit('error', err);
       client.disconnect();
@@ -59,13 +59,20 @@ export class HostGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!user) throw new UnauthorizedException('잘못된 유저');
     else {
       client.data.user = user;
-      this.clients.set(user.hostId, client);
+      this.clients.get(user.hostId)?.push(client);
       await this.hostService.location(user);
     }
   }
   info(user: HostEntity, dto: HostInfoDto) {
     this.logger.log('info', dto);
-    this.clients.get(user.hostId)?.emit('info', dto);
+    const aliveSockets = this.clients
+      .get(user.hostId)
+      ?.filter((socket) => socket.connected);
+    if (!aliveSockets) return;
+    this.clients.set(user.hostId, aliveSockets);
+    aliveSockets.forEach((c) => {
+      c.emit('info', dto);
+    });
   }
   @SubscribeMessage('info')
   async hostInfo(client: CustomSocket, location: { lat: number; lon: number }){

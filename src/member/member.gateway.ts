@@ -27,7 +27,7 @@ export class MemberGateway implements OnGatewayConnection {
     private readonly memberService: MemberService,
   ) {}
   private readonly logger = new Logger('HostService');
-  private clients: Map<string, CustomSocket> = new Map();
+  private clients: Map<string, Array<CustomSocket>> = new Map();
 
   async handleConnection(client: CustomSocket) {
     const authorization = client.handshake.query.Authorization as string;
@@ -43,7 +43,8 @@ export class MemberGateway implements OnGatewayConnection {
       if (!user) throw new UnauthorizedException('잘못된 유저');
       else {
         client.data.user = user;
-        this.clients.set(user.memberId, client);
+
+        this.clients.get(user.memberId)?.push(client);
         await this.memberService.location(user);
       }
     } catch (err) {
@@ -53,7 +54,14 @@ export class MemberGateway implements OnGatewayConnection {
   }
   info(user: MemberEntity, dto: MemberInfoDto) {
     this.logger.log('info', dto);
-    this.clients.get(user.memberId)?.emit('info', dto);
+    const aliveSockets = this.clients
+      .get(user.memberId)
+      ?.filter((socket) => socket.connected);
+    if (!aliveSockets) return;
+    this.clients.set(user.memberId, aliveSockets);
+    aliveSockets.forEach((c) => {
+      c.emit('info', dto);
+    });
   }
   @SubscribeMessage('info')
   async hostInfo(client: CustomSocket, location: { lat: number; lon: number }) {
