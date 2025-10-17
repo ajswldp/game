@@ -68,6 +68,7 @@ export class HostGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
   @SubscribeMessage('info')
   async hostInfo(client: CustomSocket, location: { lat: number; lon: number }){
+    this.logger.log('info 소켓', client.data.user);
     await this.hostService.addLocation(client.data.user, location);
   }
 }
