@@ -54,6 +54,7 @@ export class MemberService {
       user2.host.lon,
     );
     user2.danger = getDanger(distance, user2.host);
+    this.logger.log('location', user2.danger, distance, user2.host.safe);
     await this.memberRepo.save(user2);
     const memberInfoDto: MemberInfoDto = {
       danger: user2.danger,
