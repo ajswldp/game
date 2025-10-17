@@ -53,7 +53,7 @@ export class MemberService {
       user2.host.lat,
       user2.host.lon,
     );
-    user2.danger = getDanger(distance, user2.host);
+    user2.danger = this.getDanger(distance, user2.host);
     this.logger.log('location', user2.danger, distance, user2.host.safe);
     await this.memberRepo.save(user2);
     const memberInfoDto: MemberInfoDto = {
@@ -94,7 +94,7 @@ export class MemberService {
           member.lat,
           member.lon,
         );
-        const danger = getDanger(distance, host);
+        const danger = this.getDanger(distance, host);
         if (danger !== member.danger) {
           member.danger = danger;
           dto.danger.push({ id: member.deviceId, distance: danger });
@@ -108,7 +108,7 @@ export class MemberService {
           memberInfo.lat,
           memberInfo.lon,
         );
-        const danger = getDanger(distance, host);
+        const danger = this.getDanger(distance, host);
         const member = this.memberRepo.create({
           deviceId: memberInfo.memberId,
           host: host,
@@ -197,7 +197,7 @@ export class MemberService {
         member.lat,
         member.lon,
       );
-      member.danger = getDanger(length, host);
+      member.danger = this.getDanger(length, host);
       await this.memberRepo.save(member);
       await this.location(member);
     }
@@ -212,6 +212,21 @@ export class MemberService {
     await this.location(member);
     await this.hostService.location(member.host);
   }
+  getDanger: (length: number, host: HostEntity) => number = (
+    length: number,
+    host: HostEntity,
+  ) => {
+    this.logger.log('getDanger', length, host.safe, host.warning, host.danger);
+    if (length < host.safe) {
+      return 0;
+    } else if (length < host.warning) {
+      return 1;
+    } else if (length < host.danger) {
+      return 2;
+    } else {
+      return 3;
+    }
+  };
 }
 
 const EARTH_RADIUS_KM = 6371;
@@ -243,17 +258,3 @@ const calculateDistanceInMeters = (
   return distanceInKm * 1000;
 };
 
-const getDanger: (length: number, host: HostEntity) => number = (
-  length: number,
-  host: HostEntity,
-) => {
-  if (length < host.safe) {
-    return 0;
-  } else if (length < host.warning) {
-    return 1;
-  } else if (length < host.danger) {
-    return 2;
-  } else {
-    return 3;
-  }
-};
