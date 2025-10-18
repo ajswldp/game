@@ -190,6 +190,7 @@ export class MemberService {
       where: { host: host },
       relations: ['host'],
     });
+    this.logger.log('setDistance', host);
     for (const member of members) {
       const length = calculateDistanceInMeters(
         host.lat,
