@@ -71,7 +71,7 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-      expiresIn: '1h', // 필요하면 변경
+      expiresIn: '15h', // 필요하면 변경
     });
 
     return new TokenDto(accessToken, tokenDto.refreshToken);
